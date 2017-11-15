@@ -54,17 +54,23 @@
 			</div>
 		</div>
 		<div class="container-fluid main-container">
+
 			<div class="row">
-				<div class="col-sm-6">
-					<div data-panel="editor" class="panel panel-default panel-editor">
-						<div class="panel-heading">
-							<h3 class="panel-title">LPS1 (Linguagem de Programação Simples 1)</h3>
-						</div>
-						<div class="panel-body">
-							<textarea id="code" title="Editor" name="code" data-panel-textarea="editor" class="box-sizing-border"></textarea>
+
+				<form data-form="code" action="src/request.php" method="post" role="form">
+					<div class="col-sm-6">
+						<div data-panel="editor" class="panel panel-default panel-editor">
+							<div class="panel-heading">
+								<h3 class="panel-title">LPS1 (Linguagem de Programação Simples 1)</h3>
+							</div>
+							<div class="panel-body">
+								<textarea id="code" title="Editor" name="code" data-panel-textarea="editor" class="box-sizing-border"></textarea>
+							</div>
 						</div>
 					</div>
-				</div>
+				</form>
+
+				<!-- Console-->
 				<div class="col-sm-6">
 					<div data-panel="console" class="panel panel-default panel-console">
 						<div class="panel-heading">

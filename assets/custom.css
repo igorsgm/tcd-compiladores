@@ -184,7 +184,8 @@ body {
 
 .panel-editor .panel-body, .panel-console .panel-body {
     color: #FFF;
-    min-height: 40em;
+    min-height: 38em;
+    max-height: 50em;
 }
 
 .panel-editor .panel-body {
@@ -202,10 +203,12 @@ body {
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
     box-shadow: none;
+    font-size: 1.3em;
 }
 
 .panel-console .panel-body {
     background-color: #000;
+    font-size: 1.3em;
 }
 
 .btn-success {
