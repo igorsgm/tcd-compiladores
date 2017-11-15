@@ -1,0 +1,200 @@
+body {
+    margin-top: 40px;
+    background-color: #ECF0F5;
+    font-family: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 400;
+}
+
+/*--------------------------------------------------------------------------
+  Navbar Style
+--------------------------------------------------------------------------*/
+.navbar {
+    border-bottom-left-radius: 0; /*Change bootstrap default border-radius for menu*/
+    background-color: #418EBA;
+    border-color: #418EBA;
+}
+
+.navbar-default .navbar-brand {
+    color: #FFFFFF;
+    font-size: 1.6em;
+}
+
+@media (min-width: 768px) {
+    .navbar .navbar-brand {
+        width: 224px; /*Change the width of .navbar-brand to center text and align with .sider-navbar border-right*/
+        text-align: center;
+    }
+}
+
+/*--------------------------------------------------------------------------
+  Side Navigation
+--------------------------------------------------------------------------*/
+@media (min-width: 768px) {
+    .sider-navbar {
+        position: fixed;
+        top: 50px;
+        left: 225px;
+        width: 225px;
+        margin-left: -225px;
+        border-right: 1px solid #333333;
+        border-radius: 0;
+        overflow-y: auto;
+        background: #1e282c;
+        bottom: 0;
+        overflow-x: hidden;
+        padding-bottom: 40px;
+    }
+
+    .sider-navbar li.sider-menu ul {
+        width: 225px;
+    }
+
+    .sider-navbar li.sider-menu > ul > li,
+    .sider-navbar li.sider-menu ul li ul li {
+        border-top: 1px solid #E7E7E7; /*Change for .sider-menu border color*/
+        -webkit-transition: all 0.3s ease-out;
+        transition: all 0.3s ease-out;
+    }
+
+    .sider-navbar li.sider-menu > ul > li:last-child {
+        border-bottom: 1px solid #E7E7E7; /*Change for .sider-menu border color*/
+    }
+
+    .sider-navbar li.sider-menu > ul > li.active,
+    .sider-navbar li.sider-menu > ul > li:hover,
+    .sider-navbar li.sider-menu ul li ul li:hover {
+        border-right: 6px solid #dddddd;
+    }
+
+    .sider-navbar li.sider-menu ul li ul li:hover {
+        background: #FFFFFF; /*Change for .sider-menu border color*/
+    }
+
+    .sider-navbar li.sider-menu ul li a {
+        outline: none;
+        padding: 15px;
+    }
+
+}
+
+.sider-navbar li.sider-menu ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sider-navbar li.sider-menu ul li a {
+    display: block;
+    padding: 15px;
+    text-decoration: none;
+    color: #5E5E5E; /*Change for .sider-menu color*/
+}
+
+.sider-navbar li.sider-menu ul li ul {
+    background-color: #f3f3f3; /*Change for .sider-menu background-color*/
+}
+
+.profile-userpic img {
+    float: none;
+    margin: 12px auto 0;
+    padding: 6px;
+    width: 50%;
+    height: 50%;
+    -webkit-border-radius: 50% !important;
+    -moz-border-radius: 50% !important;
+    border-radius: 50% !important;
+}
+
+.profile-usertitle {
+    text-align: center;
+    margin-top: 16px;
+    color: #FFFFFF;
+}
+
+.profile-usertitle-name {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 7px;
+}
+
+.profile-usertitle-title {
+    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+/*Hide profile picture on smaller devices*/
+@media (max-width: 768px) {
+    #profile {
+        display: none;
+    }
+}
+
+/*--------------------------------------------------------------------------
+  Page Keeper
+--------------------------------------------------------------------------*/
+@media (min-width: 768px) {
+    #page-keeper {
+        width: 100%;
+        padding: 10px 10px 10px 225px;
+    }
+}
+
+.program-title {
+    padding: 20px 30px;
+    background: #F39C12;
+    font-weight: 600;
+    font-size: 1.4em;
+    color: #FFFFFF;
+}
+
+/*--------------------------------------------------------------------------
+  Main Content
+--------------------------------------------------------------------------*/
+
+.main-container {
+    margin-top: 20px;
+}
+
+.panel {
+    border-radius: 0;
+}
+
+.panel-title {
+    text-align: center;
+}
+
+.panel-editor .panel-heading {
+    background-color: #2B3134;
+    color: #FFF;
+}
+
+.panel-console .panel-heading {
+    background-color: #ddd;
+}
+
+.panel-editor .panel-body, .panel-console .panel-body {
+    color: #FFF;
+    min-height: 40em;
+}
+
+.panel-editor .panel-body {
+    background-color: #364651;
+}
+
+.panel-editor textarea {
+    width: 100%;
+    min-height: 36em;
+    background-color: #364651;
+    border: none;
+    overflow: auto;
+    outline: none;
+    resize: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+}
+
+.panel-console .panel-body {
+    background-color: #000;
+}
