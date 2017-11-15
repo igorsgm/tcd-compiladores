@@ -16,67 +16,75 @@
 	<title>TCD - Compiladores</title>
 </head>
 <body>
-<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
-	<div class="container-fluid">
-		<!-- Brand and toggle get grouped for better mobile display -->
-		<div class="navbar-header">
-			<a class="navbar-brand" href="#">TCD</a>
+	<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+		<div class="container-fluid">
+			<!-- Brand and toggle get grouped for better mobile display -->
+			<div class="navbar-header">
+				<a class="navbar-brand" href="#">TCD</a>
+			</div>
+			<!-- Collect the nav links, forms, and other content for toggling -->
+			<div class="collapse navbar-collapse" id="navbar-collapse">
+				<ul class="nav navbar-nav sider-navbar">
+					<li id="profile">
+						<figure class="profile-userpic">
+							<img src="assets/imgs/igor.jpg" class="img-responsive" alt="Profile Picture">
+						</figure>
+						<div class="profile-usertitle">
+							<div class="profile-usertitle-name">Igor Moraes</div>
+							<div class="profile-usertitle-title">RA: 21501099</div>
+						</div>
+					</li>
+					<li id="profile">
+						<figure class="profile-userpic">
+							<img src="assets/imgs/erick.jpg" class="img-responsive" alt="Profile Picture">
+						</figure>
+						<div class="profile-usertitle">
+							<div class="profile-usertitle-name">Erick Rennan</div>
+							<div class="profile-usertitle-title">RA:</div>
+						</div>
+					</li>
+				</ul>
+			</div>
 		</div>
-		<!-- Collect the nav links, forms, and other content for toggling -->
-		<div class="collapse navbar-collapse" id="navbar-collapse">
-			<ul class="nav navbar-nav sider-navbar">
-				<li id="profile">
-					<figure class="profile-userpic">
-						<img src="assets/imgs/igor.jpg" class="img-responsive" alt="Profile Picture">
-					</figure>
-					<div class="profile-usertitle">
-						<div class="profile-usertitle-name">Igor Moraes</div>
-						<div class="profile-usertitle-title">RA: 21501099</div>
-					</div>
-				</li>
-				<li id="profile">
-					<figure class="profile-userpic">
-						<img src="assets/imgs/erick.jpg" class="img-responsive" alt="Profile Picture">
-					</figure>
-					<div class="profile-usertitle">
-						<div class="profile-usertitle-name">Erick Rennan</div>
-						<div class="profile-usertitle-title">RA:</div>
-					</div>
-				</li>
-			</ul>
-		</div>
-	</div>
-</nav>
-<section id="page-keeper">
-	<div class="row">
-		<div class="col-sm-12 program-title">
-			Projeto B - Compiladores
-		</div>
-	</div>
-	<div class="container-fluid main-container">
+	</nav>
+	<section id="page-keeper">
 		<div class="row">
-			<div class="col-sm-6">
-				<div data-panel="editor" class="panel panel-default panel-editor">
-					<div class="panel-heading">
-						<h3 class="panel-title">LPS1 (Linguagem de Programação Simples 1)</h3>
-					</div>
-					<div class="panel-body">
-						<textarea id="code" title="Editor" name="code" data-panel-textarea="editor" class="box-sizing-border"></textarea>
+			<div class="col-sm-12 program-title">
+				Projeto B - Compiladores
+			</div>
+		</div>
+		<div class="container-fluid main-container">
+			<div class="row">
+				<div class="col-sm-6">
+					<div data-panel="editor" class="panel panel-default panel-editor">
+						<div class="panel-heading">
+							<h3 class="panel-title">LPS1 (Linguagem de Programação Simples 1)</h3>
+						</div>
+						<div class="panel-body">
+							<textarea id="code" title="Editor" name="code" data-panel-textarea="editor" class="box-sizing-border"></textarea>
+						</div>
 					</div>
 				</div>
-			</div>
-			<div class="col-sm-6">
-				<div data-panel="console" class="panel panel-default panel-console">
-					<div class="panel-heading">
-						<h3 class="panel-title">Console</h3>
-					</div>
-					<div data-panel-body="console" class="panel-body">
-						>
+				<div class="col-sm-6">
+					<div data-panel="console" class="panel panel-default panel-console">
+						<div class="panel-heading">
+							<h3 class="panel-title">Console</h3>
+						</div>
+						<div data-panel-body="console" class="panel-body">
+							>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-	</div>
-</section>
+
+		<!-- Button -->
+		<div class="form-group">
+			<label class="col-md-4 control-label" for="compile-button"></label>
+			<div class="col-md-4 text-center">
+				<button id="compile" name="compile-button" class="btn btn-success btn-lg btn-block">Compilar</button>
+			</div>
+		</div>
+	</section>
 </body>
 </html>

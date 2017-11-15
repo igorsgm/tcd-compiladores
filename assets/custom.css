@@ -5,6 +5,10 @@ body {
     font-weight: 400;
 }
 
+* {
+    border-radius: 0 !important;
+}
+
 /*--------------------------------------------------------------------------
   Navbar Style
 --------------------------------------------------------------------------*/
@@ -164,6 +168,11 @@ body {
     text-align: center;
 }
 
+.panel-heading {
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
+}
+
 .panel-editor .panel-heading {
     background-color: #2B3134;
     color: #FFF;
@@ -197,4 +206,13 @@ body {
 
 .panel-console .panel-body {
     background-color: #000;
+}
+
+.btn-success {
+    background-color: #00a65a;
+    border-color: #008d4c;
+}
+
+.btn-success:hover, .btn-success:active, .btn-success.hover {
+    background-color: #008d4c;
 }
