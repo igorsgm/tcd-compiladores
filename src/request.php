@@ -1,4 +1,6 @@
 <?php
+include_once('LPS1Compiler.php');
 
-var_dump($_POST);
-die;
+if ($_SERVER["REQUEST_METHOD"] == "POST" && $code = $_POST['code']) {
+	$compiler = new LPS1Compiler($code);
+}
