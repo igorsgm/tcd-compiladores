@@ -50,6 +50,8 @@ class StructureTreater
 			}
 
 		}
+
+		return $lines;
 	}
 
 	/**
