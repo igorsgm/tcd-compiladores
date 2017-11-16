@@ -108,7 +108,7 @@ class StructureValidator
 		} else {
 			$operationsValidator = new OperationValidator();
 
-			if (!$operationsValidator->validateOperations([$line])) {
+			if (!$operationsValidator->validateOperations([$ifBody])) {
 				return false;
 			}
 		}

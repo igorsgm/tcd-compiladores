@@ -70,7 +70,7 @@ class LPS1Compiler
 		$codeLinesByValidator = $this->getSeparatedLinesByValidator($this->codeSanitized);
 
 		if (!$this->structureValidator->validateStructures($codeLinesByValidator['structure'])
-			|| $this->operationValidator->validateOperations($codeLinesByValidator['operation'])) {
+			|| !$this->operationValidator->validateOperations($codeLinesByValidator['operation'])) {
 
 			$this->linesWithError = $this->structureValidator->getLinesWithError() +  $this->operationValidator->getLinesWithError();
 
