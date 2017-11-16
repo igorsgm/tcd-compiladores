@@ -29,6 +29,18 @@ class LPS1Compiler
 	private $codeSanitized;
 
 	/**
+	 * Objeto da classe que faz o tratamento estrutural do código
+	 * @var StructureTreater StructureTreater
+	 */
+	private $structureTreater;
+
+	/**
+	 * O Tradutor
+	 * @var Translator $translator
+	 */
+	private $translator;
+
+	/**
 	 * LPS1Compiler constructor.
 	 *
 	 * @param string $code
@@ -36,19 +48,19 @@ class LPS1Compiler
 	public function __construct($code)
 	{
 		$this->codeInitialString = $code;
+		$this->structureTreater  = new StructureTreater();
+		$this->translator        = new Translator();
 	}
 
 	public function run()
 	{
 		$this->codeLined = explode("\n", $this->codeInitialString);
 
-		$treater = new StructureTreater();
-
-		$this->codeSanitized = $treater->removeSpacesFromLines($this->codeLined);
-		$this->codeSanitized = $treater->treatWhilesToCondenseInSingleLine($this->codeSanitized);
+		$this->codeSanitized = $this->structureTreater->removeSpacesFromLines($this->codeLined);
+		$this->codeSanitized = $this->structureTreater->treatWhilesToCondenseInSingleLine($this->codeSanitized);
 
 
-		return (new Translator())->execute($this->codeSanitized);
+		return $this->translator->execute($this->codeSanitized);
 	}
 
 }
