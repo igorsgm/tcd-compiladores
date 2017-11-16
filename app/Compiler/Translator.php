@@ -3,10 +3,12 @@
 namespace App\Compiler;
 
 
+use App\Helper;
+
 class Translator
 {
 
-	public static $cHeader = [
+	public $cHeader = [
 		'#include <stdio.h>',
 		'int main() {',
 		'int a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, w, x, y, z;',
@@ -19,15 +21,15 @@ class Translator
 	 *
 	 * @var array $lps1Map
 	 */
-	public static $lps1Map = [
-		'G' => '{|gets(str);|   sscanf(str, "%d", &[]);|}|', // [1] => var1
-		'I' => 'if ([][][]) {|  []|}|', // [1] => var1, [2] => operacao ou comparação, [3] => var2, [4] => body
-		'W' => 'while ([][][]) []|   []|[]|', // [1] => var1, [2] => operador, [3] => var2, [4] => {, [5] => body, [6] => }
-		'P' => 'printf("%d\n", []);|', // [1] => var1,
+	public $lps1Map = [
+		'G' => '{|gets(str);|   sscanf(str, "%d", &:[0]);|}|', // :[0] => var1
+		'I' => 'if (:[0]:[1]:[2]) {|  :[3]|}|', // :[0] => var1, :[1] => operacao ou comparação, :[2] => var2, :[3] => body
+		'W' => 'while (:[0]:[1]:[2]) :[3]|   :[4]|:[5]|', // :[0] => var1, :[1] => operador, :[2] => var2, :[3] => {, :[4] => body, :[5] => }
+		'P' => 'printf("%d\n", :[0]);|', // :[0] => var1,
 		'#' => '!='
 	];
 
-	public static $lps1Structures = ['G', 'I', 'W', 'P', '#'];
+	public $lps1Structures = ['G', 'I', 'W', 'P', '#'];
 
 	/**
 	 * Executará a tradução de cada uma das linhas do código em LPS1 para C
@@ -36,15 +38,53 @@ class Translator
 	 *
 	 * @return array
 	 */
-	public static function execute($codeSanitized)
+	public function execute($codeSanitized)
 	{
 		$code = [];
-		foreach ($codeSanitized as $lineNumber => $lineElements) {
-			$code[$lineNumber] = self::replaceCharsOfLineByLps1Map(str_split($lineElements));
+		foreach ($codeSanitized as $keyLine => $lineElements) {
+			$code[$keyLine] = self::replaceCharsOfLineByLps1Map(str_split($lineElements));
+		}
+
+		foreach ($code as $keyLine => $lineElements) {
+			foreach ($lineElements as $keyElement => $element) {
+
+				// Se aquele elemento faz parte do $lps1Map e possui ":[" para ser substituído
+				if (in_array($element, $this->lps1Map) && Helper::contains($element, ':[')) {
+
+					// Se não for um while
+					if (!Helper::contains($element, 'while')) {
+
+						// Quantidade de ":[x]" que devem ser substituídos
+						$qtElementsToBeReplaced = substr_count($element, ':[');
+
+						// Valores que devem ser substituídos, que é um array formado a partir $key atual do elemento + o número de "[]" (correspondentes aos elementos seguintes)
+						$valuesToReplace = array_slice($lineElements, $keyElement + 1, $qtElementsToBeReplaced, true);
+
+						$code[$keyLine][$keyElement] = $this->replaceElementBracketsWithValues($element, $valuesToReplace);
+
+						// Removendo os elementos que já foram substituídos
+						$code[$keyLine] = Helper::remove($code[$keyLine], array_keys($valuesToReplace));
+					} else {
+
+						$valuesToReplace = array_slice($lineElements, $keyElement + 1, 4, true);
+
+						// Procurando a key do elemento que fecha a estrutura do while
+						$closeWhileKeyElement = array_search('}', $lineElements);
+
+						// Adicionando o "}" aos valores que serão substituídos
+						$valuesToReplace[$closeWhileKeyElement] = $lineElements[$closeWhileKeyElement];
+
+						$code[$keyLine][$keyElement] = $this->replaceElementBracketsWithValues($element, $valuesToReplace, [':[0]', ':[1]', ':[2]', ':[3]', ':[5]']);
+						$code[$keyLine]              = Helper::remove($code[$keyLine], array_keys($valuesToReplace));
+
+					}
+				}
+			}
 		}
 
 		var_dump($code);
 		die;
+
 	}
 
 	/**
@@ -54,16 +94,37 @@ class Translator
 	 *
 	 * @return array
 	 */
-	public static function replaceCharsOfLineByLps1Map($lineElements)
+	public function replaceCharsOfLineByLps1Map($lineElements)
 	{
 		foreach ($lineElements as $key => $char) {
 			// Se estiver no array das estruturas da LPS1, irá substituir pelo correspondente no $lps1Map
-			if (in_array($char, self::$lps1Structures)) {
-				$lineElements[$key] = self::$lps1Map[$char];
+			if (in_array($char, $this->lps1Structures)) {
+				$lineElements[$key] = $this->lps1Map[$char];
 			}
 
 		}
 
 		return $lineElements;
+	}
+
+
+	/**
+	 * Substitui (bind) os ":[0]" elementos da string pelos $values
+	 *
+	 * @param string $element elemento que terá substituiçòes
+	 * @param array  $values  Array com os valores que serão adicionados
+	 *
+	 * @return string
+	 */
+	public function replaceElementBracketsWithValues($element, $values, $arraySearch = [])
+	{
+		if (empty($arraySearch)) {
+			// Montando o array das susbtrings que serão procuradas e serão substituídas
+			foreach (array_values($values) as $key => $value) {
+				$arraySearch[] = ':[' . $key . ']';
+			}
+		}
+
+		return str_replace($arraySearch, $values, $element);
 	}
 }

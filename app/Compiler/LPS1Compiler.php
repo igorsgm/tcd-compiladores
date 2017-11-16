@@ -47,7 +47,8 @@ class LPS1Compiler
 		$this->codeSanitized = $treater->removeSpacesFromLines($this->codeLined);
 		$this->codeSanitized = $treater->treatWhilesToCondenseInSingleLine($this->codeSanitized);
 
-		return Translator::execute($this->codeSanitized);
+
+		return (new Translator())->execute($this->codeSanitized);
 	}
 
 }
