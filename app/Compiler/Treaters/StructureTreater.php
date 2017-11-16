@@ -41,7 +41,7 @@ class StructureTreater
 		foreach ($lines as $key => $line) {
 			if (substr($line, 0, 1) == 'I' && strlen($line) > 4) {
 				$codeLines[] = substr($line, 0, 4);
-				$codeLines[] = substr($line, 4) . ';';
+				$codeLines[] = substr($line, 4) . '';
 			} else {
 				$codeLines[] = $line;
 			}

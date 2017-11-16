@@ -82,9 +82,9 @@ class Translator
 		}
 
 		$code = $this->translateSimpleStructures($code);
-		$code = $this->translateIfs($code);
-		$code = $this->translateWhiles($code);
-		$code = $this->structureTreater->treatAloneStructures($code);
+		$code = $this->translateIfs(array_filter($code));
+		$code = $this->translateWhiles(array_filter($code));
+		$code = $this->structureTreater->treatAloneStructures(array_filter($code));
 		$code = $this->structureTreater->separateCCodeStringsInLines(array_column($code, '0'));
 
 		// Adicionando o header padrão do C
@@ -126,21 +126,31 @@ class Translator
 
 				if (in_array($element, $this->lps1Map) && Helper::contains($element, ':[') && Helper::contains($element, 'if') && !Helper::contains($element, 'while')) {
 
+
 					$valuesToReplace = array_slice($lineElements, $keyElement + 1, 3, true);
 
 					$code[$keyLine][$keyElement] = $this->replaceElementBracketsWithValues($element, $valuesToReplace, [':[0]', ':[1]', ':[2]']);
 					$code[$keyLine]              = Helper::remove($code[$keyLine], array_keys($valuesToReplace));
 
-					$valuesToReplace = [];
-					$ifBodyElements  = $this->structureTreater->getIfBodyElements($code[$keyLine]);
+					// Se o if for uma estrutura simples, ou seja, não estiver dentro de um while
+					if (count($lineElements) == 4) {
+						array_push($code[$keyLine], $code[$keyLine + 1][0]);
+						unset($code[$keyLine + 1][0]);
 
-					// Keys que serão removidas do array deste elemento
-					$ifBodyKeys = array_keys($ifBodyElements);
+						$valuesToReplace = [];
+						array_push($valuesToReplace, $code[$keyLine][1]);
 
-					array_push($valuesToReplace, $this->structureTreater->getRowPipeLined($ifBodyElements));
+						$code[$keyLine][$keyElement] = $this->replaceElementBracketsWithValues($code[$keyLine][$keyElement], $valuesToReplace, [':[3]']);
+						$code[$keyLine]              = Helper::remove($code[$keyLine], [1]);
+					} else {
+						$valuesToReplace = [];
+						$ifBodyElements  = $this->structureTreater->getIfBodyElements($code[$keyLine]);
 
-					$code[$keyLine][$keyElement] = $this->replaceElementBracketsWithValues($code[$keyLine][$keyElement], $valuesToReplace, [':[3]']);
-					$code[$keyLine]              = Helper::remove($code[$keyLine], $ifBodyKeys);
+						array_push($valuesToReplace, $this->structureTreater->getRowPipeLined($ifBodyElements));
+
+						$code[$keyLine][$keyElement] = $this->replaceElementBracketsWithValues($code[$keyLine][$keyElement], $valuesToReplace, [':[3]']);
+						$code[$keyLine]              = Helper::remove($code[$keyLine], array_keys($ifBodyElements));
+					}
 				}
 			}
 		}
