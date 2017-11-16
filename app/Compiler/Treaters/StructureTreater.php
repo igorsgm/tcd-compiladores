@@ -28,6 +28,28 @@ class StructureTreater
 		return $lines;
 	}
 
+	/**
+	 * Fazer a separação do body do if
+	 *
+	 * @param array $lines
+	 *
+	 * @return array
+	 */
+	public function treatIfSeparations($lines)
+	{
+		$codeLines = [];
+		foreach ($lines as $key => $line) {
+			if (substr($line, 0, 1) == 'I' && strlen($line) > 4) {
+				$codeLines[] = substr($line, 0, 4);
+				$codeLines[] = substr($line, 4) . ';';
+			} else {
+				$codeLines[] = $line;
+			}
+		}
+
+		return $codeLines;
+	}
+
 	public function treatWhilesToCondenseInSingleLine($lines)
 	{
 		foreach ($lines as $key => $line) {
@@ -70,6 +92,36 @@ class StructureTreater
 		}
 
 		return false;
+	}
+
+	/**
+	 * Retorna o array de elementos que estão dentro do body do if
+	 *
+	 * @param array $lineElements Array de elementos
+	 */
+	public function getIfBodyElements($lineElements)
+	{
+//		var_dump($lineElements);
+//		die;
+		$ifBody = [];
+		foreach ($lineElements as $key => $element) {
+			if (Helper::contains($element, 'if')) {
+				$bodySliceElements = array_slice($lineElements, $key + 1, 4, true);
+
+				foreach ($bodySliceElements as $keySlice => $elementSlice) {
+					if (!Helper::contains($elementSlice, ';') && !Helper::contains($elementSlice, '}')) {
+						$ifBody[$keySlice] = $elementSlice;
+					} else {
+						if ($elementSlice == ';') {
+							array_push($ifBody, $elementSlice);
+						}
+
+						return $ifBody;
+					}
+
+				}
+			}
+		}
 	}
 
 	/**

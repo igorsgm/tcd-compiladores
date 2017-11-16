@@ -63,11 +63,10 @@ class Translator
 		$this->structureTreater = new StructureTreater();
 		$this->operationTreater = new OperationTreater();
 
-		$this->codeSanitized = $this->structureTreater->removeSpacesFromLines($codeLined);
-
-		$this->codeTranslated = $this->operationTreater->treatOperations($this->codeSanitized);
+		$this->codeSanitized  = $this->structureTreater->removeSpacesFromLines($codeLined);
+		$this->codeTranslated = $this->structureTreater->treatIfSeparations($this->codeSanitized);
+		$this->codeTranslated = $this->operationTreater->treatOperations($this->codeTranslated);
 		$this->codeTranslated = $this->structureTreater->treatWhilesToCondenseInSingleLine($this->codeTranslated);
-
 	}
 
 	/**
@@ -83,6 +82,7 @@ class Translator
 		}
 
 		$code = $this->translateSimpleStructures($code);
+		$code = $this->translateIfs($code);
 		$code = $this->translateWhiles($code);
 		$code = $this->structureTreater->treatAloneStructures($code);
 		$code = $this->structureTreater->getCCodeString(array_column($code, '0'));
@@ -97,22 +97,48 @@ class Translator
 			foreach ($lineElements as $keyElement => $element) {
 
 				// Se aquele elemento faz parte do $lps1Map e possui ":[" para ser substituído
-				if (in_array($element, $this->lps1Map) && Helper::contains($element, ':[')) {
+				if (in_array($element, $this->lps1Map) && Helper::contains($element, ':[') && !Helper::contains($element, 'while') && !Helper::contains($element, 'if')) {
 
-					// Se não for um while
-					if (!Helper::contains($element, 'while')) {
+					// Quantidade de ":[x]" que devem ser substituídos
+					$qtElementsToBeReplaced = substr_count($element, ':[');
 
-						// Quantidade de ":[x]" que devem ser substituídos
-						$qtElementsToBeReplaced = substr_count($element, ':[');
+					// Valores que devem ser substituídos, que é um array formado a partir $key atual do elemento + o número de "[]" (correspondentes aos elementos seguintes)
+					$valuesToReplace = array_slice($lineElements, $keyElement + 1, $qtElementsToBeReplaced, true);
 
-						// Valores que devem ser substituídos, que é um array formado a partir $key atual do elemento + o número de "[]" (correspondentes aos elementos seguintes)
-						$valuesToReplace = array_slice($lineElements, $keyElement + 1, $qtElementsToBeReplaced, true);
+					$code[$keyLine][$keyElement] = $this->replaceElementBracketsWithValues($element, $valuesToReplace);
 
-						$code[$keyLine][$keyElement] = $this->replaceElementBracketsWithValues($element, $valuesToReplace);
+					// Removendo os elementos que já foram substituídos
+					$code[$keyLine] = Helper::remove($code[$keyLine], array_keys($valuesToReplace));
+				}
+			}
+		}
 
-						// Removendo os elementos que já foram substituídos
-						$code[$keyLine] = Helper::remove($code[$keyLine], array_keys($valuesToReplace));
-					}
+		return $code;
+	}
+
+
+	public function translateIfs($code)
+	{
+		foreach ($code as $keyLine => $lineElements) {
+			foreach ($lineElements as $keyElement => $element) {
+
+				if (in_array($element, $this->lps1Map) && Helper::contains($element, ':[') && Helper::contains($element, 'if') && !Helper::contains($element, 'while')) {
+
+					$valuesToReplace = array_slice($lineElements, $keyElement + 1, 3, true);
+
+					$code[$keyLine][$keyElement] = $this->replaceElementBracketsWithValues($element, $valuesToReplace, [':[0]', ':[1]', ':[2]']);
+					$code[$keyLine]              = Helper::remove($code[$keyLine], array_keys($valuesToReplace));
+
+					$valuesToReplace = [];
+					$ifBodyElements  = $this->structureTreater->getIfBodyElements($code[$keyLine]);
+
+					// Keys que serão removidas do array deste elemento
+					$ifBodyKeys = array_keys($ifBodyElements);
+
+					array_push($valuesToReplace, $this->structureTreater->getRowPipeLined($ifBodyElements));
+
+					$code[$keyLine][$keyElement] = $this->replaceElementBracketsWithValues($code[$keyLine][$keyElement], $valuesToReplace, [':[3]']);
+					$code[$keyLine] = Helper::remove($code[$keyLine], $ifBodyKeys);
 				}
 			}
 		}
@@ -125,7 +151,7 @@ class Translator
 		foreach ($code as $keyLine => $lineElements) {
 			foreach ($lineElements as $keyElement => $element) {
 
-				if (in_array($element, $this->lps1Map) && Helper::contains($element, ':[') && Helper::contains($element, 'while')) {
+				if (in_array($element, $this->lps1Map) && Helper::contains($element, ':[') && Helper::contains($element, 'while') && !Helper::contains($element, 'if')) {
 
 					$valuesToReplace = array_slice($lineElements, $keyElement + 1, 4, true);
 
