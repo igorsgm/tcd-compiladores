@@ -3,10 +3,23 @@
 namespace App\Compiler;
 
 
+use App\Compiler\Treaters\StructureTreater;
 use App\Helper;
 
 class Translator
 {
+
+	/**
+	 * Array do código sanitizado (dividido por linhas, sem comentários e sem espaços)
+	 * @var array $codeSanitized
+	 */
+	private $codeSanitized;
+
+	/**
+	 * Objeto da classe que faz o tratamento estrutural do código
+	 * @var StructureTreater StructureTreater
+	 */
+	private $structureTreater;
 
 	public $cHeader = [
 		'#include <stdio.h>',
@@ -31,17 +44,23 @@ class Translator
 
 	public $lps1Structures = ['G', 'I', 'W', 'P', '#'];
 
+
+	public function __construct($codeLined)
+	{
+		$this->structureTreater = new StructureTreater();
+		$this->codeSanitized    = $this->structureTreater->removeSpacesFromLines($codeLined);
+		$this->codeSanitized    = $this->structureTreater->treatWhilesToCondenseInSingleLine($this->codeSanitized);
+	}
+
 	/**
 	 * Executará a tradução de cada uma das linhas do código em LPS1 para C
 	 *
-	 * @param array $codeSanitized
-	 *
 	 * @return array
 	 */
-	public function execute($codeSanitized)
+	public function execute()
 	{
 		$code = [];
-		foreach ($codeSanitized as $keyLine => $lineElements) {
+		foreach ($this->codeSanitized as $keyLine => $lineElements) {
 			$code[$keyLine] = self::replaceCharsOfLineByLps1Map(str_split($lineElements));
 		}
 
