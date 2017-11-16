@@ -72,7 +72,7 @@ class Translator
 	/**
 	 * Executará a tradução de cada uma das linhas do código em LPS1 para C
 	 *
-	 * @return array
+	 * @return string
 	 */
 	public function execute()
 	{
