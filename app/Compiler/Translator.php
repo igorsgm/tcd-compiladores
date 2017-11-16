@@ -3,6 +3,7 @@
 namespace App\Compiler;
 
 
+use App\Compiler\Treaters\OperationTreater;
 use App\Compiler\Treaters\StructureTreater;
 use App\Helper;
 
@@ -16,10 +17,22 @@ class Translator
 	private $codeSanitized;
 
 	/**
+	 * Array do código traduzido, a ser retornado
+	 * @var array $codeTranslated
+	 */
+	private $codeTranslated;
+
+	/**
 	 * Objeto da classe que faz o tratamento estrutural do código
 	 * @var StructureTreater StructureTreater
 	 */
 	private $structureTreater;
+
+	/**
+	 * Objeto da classe que faz o tratamento das operações do código
+	 * @var OperationTreater $operationTreater
+	 */
+	private $operationTreater;
 
 	public $cHeader = [
 		'#include <stdio.h>',
@@ -35,9 +48,9 @@ class Translator
 	 * @var array $lps1Map
 	 */
 	public $lps1Map = [
-		'G' => '{|gets(str);|   sscanf(str, "%d", &:[0]);|}|', // :[0] => var1
-		'I' => 'if (:[0]:[1]:[2]) {|  :[3]|}|', // :[0] => var1, :[1] => operacao ou comparação, :[2] => var2, :[3] => body
-		'W' => 'while (:[0]:[1]:[2]) :[3]|   :[4]|:[5]|', // :[0] => var1, :[1] => operador, :[2] => var2, :[3] => {, :[4] => body, :[5] => }
+		'G' => '{|gets(str);| sscanf(str, "%d", &:[0]);|}|', // :[0] => var1
+		'I' => 'if (:[0]:[1]:[2]) {|:[3]|}|', // :[0] => var1, :[1] => operacao ou comparação, :[2] => var2, :[3] => body
+		'W' => 'while (:[0]:[1]:[2]) :[3]|:[4]:[5]|', // :[0] => var1, :[1] => operador, :[2] => var2, :[3] => {, :[4] => body, :[5] => }
 		'P' => 'printf("%d\n", :[0]);|', // :[0] => var1,
 		'#' => '!='
 	];
@@ -48,8 +61,13 @@ class Translator
 	public function __construct($codeLined)
 	{
 		$this->structureTreater = new StructureTreater();
-		$this->codeSanitized    = $this->structureTreater->removeSpacesFromLines($codeLined);
-		$this->codeSanitized    = $this->structureTreater->treatWhilesToCondenseInSingleLine($this->codeSanitized);
+		$this->operationTreater = new OperationTreater();
+
+		$this->codeSanitized = $this->structureTreater->removeSpacesFromLines($codeLined);
+
+		$this->codeTranslated = $this->operationTreater->treatOperations($this->codeSanitized);
+		$this->codeTranslated = $this->structureTreater->treatWhilesToCondenseInSingleLine($this->codeTranslated);
+
 	}
 
 	/**
@@ -60,10 +78,21 @@ class Translator
 	public function execute()
 	{
 		$code = [];
-		foreach ($this->codeSanitized as $keyLine => $lineElements) {
+		foreach ($this->codeTranslated as $keyLine => $lineElements) {
 			$code[$keyLine] = self::replaceCharsOfLineByLps1Map(str_split($lineElements));
 		}
 
+		$code = $this->translateSimpleStructures($code);
+		$code = $this->translateWhiles($code);
+		$code = $this->structureTreater->treatAloneStructures($code);
+		$code = $this->structureTreater->getCCodeString(array_column($code, '0'));
+
+		var_dump($code);
+		die;
+	}
+
+	public function translateSimpleStructures($code)
+	{
 		foreach ($code as $keyLine => $lineElements) {
 			foreach ($lineElements as $keyElement => $element) {
 
@@ -83,27 +112,50 @@ class Translator
 
 						// Removendo os elementos que já foram substituídos
 						$code[$keyLine] = Helper::remove($code[$keyLine], array_keys($valuesToReplace));
-					} else {
-
-						$valuesToReplace = array_slice($lineElements, $keyElement + 1, 4, true);
-
-						// Procurando a key do elemento que fecha a estrutura do while
-						$closeWhileKeyElement = array_search('}', $lineElements);
-
-						// Adicionando o "}" aos valores que serão substituídos
-						$valuesToReplace[$closeWhileKeyElement] = $lineElements[$closeWhileKeyElement];
-
-						$code[$keyLine][$keyElement] = $this->replaceElementBracketsWithValues($element, $valuesToReplace, [':[0]', ':[1]', ':[2]', ':[3]', ':[5]']);
-						$code[$keyLine]              = Helper::remove($code[$keyLine], array_keys($valuesToReplace));
-
 					}
 				}
 			}
 		}
 
-		var_dump($code);
-		die;
+		return $code;
+	}
 
+	public function translateWhiles($code)
+	{
+		foreach ($code as $keyLine => $lineElements) {
+			foreach ($lineElements as $keyElement => $element) {
+
+				if (in_array($element, $this->lps1Map) && Helper::contains($element, ':[') && Helper::contains($element, 'while')) {
+
+					$valuesToReplace = array_slice($lineElements, $keyElement + 1, 4, true);
+
+					$code[$keyLine][$keyElement] = $this->replaceElementBracketsWithValues($element, $valuesToReplace, [':[0]', ':[1]', ':[2]', ':[3]']);
+					$code[$keyLine]              = Helper::remove($code[$keyLine], array_keys($valuesToReplace));
+
+					$valuesToReplace = [];
+
+					$whileBodyElements = $this->structureTreater->getWhileBodyElements($code[$keyLine]);
+
+					// Keys que serão removidas do array deste elemento
+					$whileBodyKeys = array_keys($whileBodyElements);
+
+					array_push($valuesToReplace, $this->structureTreater->getRowPipeLined($whileBodyElements));
+
+					// Procurando a key do elemento que fecha a estrutura do while
+					$closeWhileKeyElement = array_search('}', $lineElements);
+
+					array_push($whileBodyKeys, $closeWhileKeyElement);
+
+					// Adicionando o "}" aos valores que serão substituídos
+					array_push($valuesToReplace, $lineElements[$closeWhileKeyElement]);
+
+					$code[$keyLine][$keyElement] = $this->replaceElementBracketsWithValues($code[$keyLine][$keyElement], $valuesToReplace, [':[4]', ':[5]']);
+					$code[$keyLine]              = Helper::remove($code[$keyLine], $whileBodyKeys);
+				}
+			}
+		}
+
+		return $code;
 	}
 
 	/**

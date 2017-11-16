@@ -71,4 +71,78 @@ class StructureTreater
 
 		return false;
 	}
+
+	/**
+	 * Retorna o array de elementos que estão dentro do body do while
+	 *
+	 * @param array $lineElements Array de elementos
+	 */
+	public function getWhileBodyElements($lineElements)
+	{
+		$whileBody = [];
+		foreach ($lineElements as $key => $element) {
+			if (!Helper::contains($element, 'while') && $element != '}') {
+				$whileBody[$key] = $element;
+			}
+
+			if ($element == '}') {
+				return $whileBody;
+			}
+		}
+	}
+
+	/**
+	 * Retorna as linhas pipelined daquelas operaçòes que estão de fora de alguma estrutura (I, G, W)
+	 * Um dos últimos métodos chamados pelo Translator
+	 *
+	 * @param array $lines
+	 *
+	 * @return array
+	 */
+	public function treatAloneStructures($lines)
+	{
+		foreach ($lines as $key => $line) {
+			if (count($line) > 1) {
+				$lines[$key] = [$this->getRowPipeLined($line)];
+			}
+		}
+
+		return $lines;
+	}
+
+	/**
+	 * Retorna a string do corpo do while e também de qualquer array de elementos
+	 *
+	 * @param array $elements
+	 */
+	public function getRowPipeLined($elements)
+	{
+		$body = '';
+		foreach ($elements as $element) {
+			$body .= $element;
+
+			if (in_array(substr($element, -1), [';', '}'])) {
+				$body .= '|';
+			}
+		}
+
+		return $body;
+	}
+
+	/**
+	 * Retorna  o array com o code traduzido para C, cada linha em uma posição do array
+	 *
+	 * @param array $lines
+	 *
+	 * @return array
+	 */
+	public function getCCodeString($lines)
+	{
+		$codeCLines = [];
+		foreach ($lines as $key => $line) {
+			$codeCLines[] = explode('|', $line);
+		}
+
+		return $codeCLines;
+	}
 }
