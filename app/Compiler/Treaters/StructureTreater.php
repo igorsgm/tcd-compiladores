@@ -207,7 +207,7 @@ class StructureTreater
 	 */
 	public function optimizeCCodeToHtml($codeStructures)
 	{
-		$cString = '';
+		$cCodeString = '';
 
 		foreach ($codeStructures as $codeLines) {
 			// Reseta as keys e remove todos null/empty/false do array.
@@ -223,12 +223,33 @@ class StructureTreater
 					// Adicionar um enter a cada fechamento de estrutura
 //					$line = str_replace('}', '}<br>', $line);
 
-					$cString .= $line . '</br>';
+					$cCodeString .= $line . '</br>';
 				}
 			}
 		}
 
-		return html_entity_decode('<div class="code-success">' . $cString . '</div>');
+		return html_entity_decode('<div class="code-success">' . $cCodeString . '</div>');
+	}
+
+
+	/**
+	 * @param $codeLined
+	 * @param $linesWithError
+	 */
+	public function getLPS1CodeErrorHtml($codeLined, $linesWithError)
+	{
+		$lps1CodeString = '';
+
+		foreach ($codeLined as $lineNumber => $line) {
+			if (in_array($lineNumber, $linesWithError)) {
+				$line .= '    ------> Erro nesta linha';
+			}
+
+			$lps1CodeString .= $line . '<br>';
+
+		}
+
+		return html_entity_decode('<div class="code-error">' . $lps1CodeString . '</div>');
 	}
 
 }

@@ -3,6 +3,7 @@
 namespace App\Compiler;
 
 use App\Compiler\Treaters\StructureTreater;
+use App\Compiler\Validators\OperationValidator;
 use App\Compiler\Validators\StructureValidator;
 
 class LPS1Compiler
@@ -47,6 +48,8 @@ class LPS1Compiler
 	 */
 	private $structureValidator;
 
+	private $linesWithError;
+
 	/**
 	 * LPS1Compiler constructor.
 	 *
@@ -57,6 +60,7 @@ class LPS1Compiler
 		$this->codeInitialString  = $code;
 		$this->structureTreater   = new StructureTreater();
 		$this->structureValidator = new StructureValidator();
+		$this->operationValidator = new OperationValidator();
 	}
 
 	public function execute()
@@ -65,13 +69,18 @@ class LPS1Compiler
 
 		$codeLinesByValidator = $this->getSeparatedLinesByValidator($this->codeSanitized);
 
-		if ($this->structureValidator->validateCode($codeLinesByValidator['structure'])) {
-			$this->translator = new Translator($this->codeSanitized, $this->structureTreater);
+		if (!$this->structureValidator->validateStructures($codeLinesByValidator['structure'])
+			|| $this->operationValidator->validateOperations($codeLinesByValidator['operation'])) {
 
-			return $this->translator->execute();
+			$this->linesWithError = $this->structureValidator->getLinesWithError() +  $this->operationValidator->getLinesWithError();
+
+			return $this->structureTreater->getLPS1CodeErrorHtml($this->codeLined, $this->linesWithError);
 		}
 
-		return false;
+
+		$this->translator = new Translator($this->codeSanitized, $this->structureTreater);
+
+		return $this->translator->execute();
 	}
 
 	/**

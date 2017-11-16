@@ -50,7 +50,10 @@ class StructureValidator
 		]
 	];
 
-	public function validateCode($codeSanitized)
+	public $linesWithError = [];
+
+
+	public function validateStructures($codeSanitized)
 	{
 		$linesWithError = [];
 		foreach ($codeSanitized as $lineNumber => $line) {
@@ -63,6 +66,10 @@ class StructureValidator
 				}
 			}
 		}
+
+		$this->linesWithError = $linesWithError;
+
+		return empty($this->linesWithError);
 	}
 
 	public function basicValidator($structureElement, $line)
@@ -92,11 +99,41 @@ class StructureValidator
 		$lineWithoutStructure = substr($line, 1);
 
 		$ifSentence = substr($lineWithoutStructure, 0, 3);
-		$ifBody = substr($lineWithoutStructure, 3);
+		$ifBody     = substr($lineWithoutStructure, 3);
 
+		if ($this->isStructureSentence($ifBody)) {
+			if (!$this->basicValidator(substr($line, 0, 1), $line)) {
+				return false;
+			}
+		} else {
+			$operationsValidator = new OperationValidator();
 
-		// NÃO TERMINOU AINDA
+			if (!$operationsValidator->validateOperations([$line])) {
+				return false;
+			}
+		}
+
 		return true;
+	}
+
+	/**
+	 * Verifica se a sentença é uma estrutura de $lps1StructureRuleMap
+	 *
+	 * @param array $line
+	 *
+	 * @return bool
+	 */
+	public function isStructureSentence($line)
+	{
+		return in_array(substr($line, 0, 1), array_keys($this->lps1StructureRuleMap));
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getLinesWithError()
+	{
+		return $this->linesWithError;
 	}
 
 }
