@@ -210,11 +210,15 @@ class StructureTreater
 		$cString = '';
 
 		foreach ($codeStructures as $codeLines) {
-			//  Remove todos null/empty/false do array.
-			$codeLines = array_filter($codeLines);
+			// Reseta as keys e remove todos null/empty/false do array.
+			$codeLines = array_values(array_filter($codeLines));
 
-			foreach ($codeLines as $line) {
-				$cString .= $line . '<br>';
+			foreach ($codeLines as $key => $line) {
+				if ($line == ';' && substr($codeLines[$key-1], -1) == ';') {
+					unset($codeLines[$key]);
+				} else {
+					$cString .= $line . '<br>';
+				}
 			}
 		}
 

@@ -87,6 +87,9 @@ class Translator
 		$code = $this->structureTreater->treatAloneStructures($code);
 		$code = $this->structureTreater->separateCCodeStringsInLines(array_column($code, '0'));
 
+		// Adicionando o header padrão do C
+		array_unshift($code, $this->cHeader);
+
 		return $this->structureTreater->optimizeCCodeToHtml($code);
 	}
 
