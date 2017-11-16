@@ -188,7 +188,7 @@ class StructureTreater
 	 *
 	 * @return array
 	 */
-	public function getCCodeString($lines)
+	public function separateCCodeStringsInLines($lines)
 	{
 		$codeCLines = [];
 		foreach ($lines as $key => $line) {

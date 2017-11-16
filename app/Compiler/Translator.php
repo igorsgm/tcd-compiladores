@@ -85,7 +85,7 @@ class Translator
 		$code = $this->translateIfs($code);
 		$code = $this->translateWhiles($code);
 		$code = $this->structureTreater->treatAloneStructures($code);
-		$code = $this->structureTreater->getCCodeString(array_column($code, '0'));
+		$code = $this->structureTreater->separateCCodeStringsInLines(array_column($code, '0'));
 
 		var_dump($code);
 		die;
@@ -138,7 +138,7 @@ class Translator
 					array_push($valuesToReplace, $this->structureTreater->getRowPipeLined($ifBodyElements));
 
 					$code[$keyLine][$keyElement] = $this->replaceElementBracketsWithValues($code[$keyLine][$keyElement], $valuesToReplace, [':[3]']);
-					$code[$keyLine] = Helper::remove($code[$keyLine], $ifBodyKeys);
+					$code[$keyLine]              = Helper::remove($code[$keyLine], $ifBodyKeys);
 				}
 			}
 		}
