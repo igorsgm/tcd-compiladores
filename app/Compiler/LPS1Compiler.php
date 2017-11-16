@@ -2,6 +2,9 @@
 
 namespace App\Compiler;
 
+use App\Compiler\Treaters\StructureTreater;
+use App\Compiler\Validators\StructureValidator;
+
 class LPS1Compiler
 {
 	/**
@@ -19,6 +22,17 @@ class LPS1Compiler
 	 */
 	private $codeLined;
 
+	/**
+	 * Array do código sanitizado (dividido por linhas, sem comentários e sem espaços)
+	 * @var array $codeSanitized
+	 */
+	private $codeSanitized;
+
+	/**
+	 * Objeto da classe que faz o tratamento estrutural do código
+	 * @var StructureTreater StructureTreater
+	 */
+	private $structureTreater;
 
 	/**
 	 * O Tradutor
@@ -27,21 +41,74 @@ class LPS1Compiler
 	private $translator;
 
 	/**
+	 * O validador do código, que verifica se a sintaxe está correta antes de executar a tradução
+	 * Retorna os erros se for necessário
+	 * @var StructureValidator $structureValidator
+	 */
+	private $structureValidator;
+
+	/**
 	 * LPS1Compiler constructor.
 	 *
 	 * @param string $code
 	 */
 	public function __construct($code)
 	{
-		$this->codeInitialString = $code;
+		$this->codeInitialString  = $code;
+		$this->structureTreater   = new StructureTreater();
+		$this->structureValidator = new StructureValidator();
 	}
 
-	public function run()
+	public function execute()
 	{
-		$this->codeLined  = explode("\n", $this->codeInitialString);
-		$this->translator = new Translator($this->codeLined);
+		$this->initialSanitize();
 
-		return $this->translator->execute();
+		$codeLinesByValidator = $this->getSeparatedLinesByValidator($this->codeSanitized);
+
+		if ($this->structureValidator->validateCode($codeLinesByValidator['structure'])) {
+			$this->translator = new Translator($this->codeSanitized, $this->structureTreater);
+
+			return $this->translator->execute();
+		}
+
+		return false;
+	}
+
+	/**
+	 * Seta o codeLined e o codeSanitized, realizando os code sanitizes iniciais
+	 */
+	public function initialSanitize()
+	{
+		$this->codeLined     = explode("\n", $this->codeInitialString);
+		$this->codeSanitized = $this->structureTreater->removeSpacesFromLines($this->codeLined);
+	}
+
+	/**
+	 * Separar em dois arrays diferentes de acordo com o tipo de Validator
+	 * que será utilizado para a análise sintática de tais linhas.
+	 *
+	 * @param array $codeSanitized
+	 *
+	 * @return array    No formato ['structure' => [], 'operation' => ''];
+	 */
+	public function getSeparatedLinesByValidator($codeSanitized)
+	{
+		$code = [
+			'structure' => [],
+			'operation' => []
+		];
+
+		foreach ($codeSanitized as $lineNumber => $line) {
+			$firstChar = substr($line, 0, 1);
+
+			if (in_array($firstChar, ['G', 'P', 'I', 'W', '}'])) {
+				$code['structure'][$lineNumber] = $line;
+			} else {
+				$code['operation'][$lineNumber] = $line;
+			}
+		}
+
+		return $code;
 	}
 
 }

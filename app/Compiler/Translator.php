@@ -58,12 +58,13 @@ class Translator
 	public $lps1Structures = ['G', 'I', 'W', 'P', '#'];
 
 
-	public function __construct($codeLined)
+	public function __construct($codeSanitized, $structureTreater)
 	{
-		$this->structureTreater = new StructureTreater();
+		$this->structureTreater = $structureTreater;
 		$this->operationTreater = new OperationTreater();
 
-		$this->codeSanitized  = $this->structureTreater->removeSpacesFromLines($codeLined);
+		$this->codeSanitized    = $codeSanitized;
+
 		$this->codeTranslated = $this->structureTreater->treatIfSeparations($this->codeSanitized);
 		$this->codeTranslated = $this->operationTreater->treatOperations($this->codeTranslated);
 		$this->codeTranslated = $this->structureTreater->treatWhilesToCondenseInSingleLine($this->codeTranslated);

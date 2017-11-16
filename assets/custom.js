@@ -6,20 +6,20 @@
 
 		var form = $('[data-form="code"]');
 
-		// form.submit();
-		$.ajax({
-			url:      baseUrl + form.attr('action'),
-			type:     'POST',
-			data:     {
-				code: $('#code').val()
-			},
-			dataType: 'json',
-			success:  function (data) {
-				onCompileSuccess(data);
-			},
-			error:    function (data) {
-			}
-		});
+		form.submit();
+		// $.ajax({
+		// 	url:      baseUrl + form.attr('action'),
+		// 	type:     'POST',
+		// 	data:     {
+		// 		code: $('#code').val()
+		// 	},
+		// 	dataType: 'json',
+		// 	success:  function (data) {
+		// 		onCompileSuccess(data);
+		// 	},
+		// 	error:    function (data) {
+		// 	}
+		// });
 	};
 
 	onCompileSuccess = function (data) {

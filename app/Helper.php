@@ -35,6 +35,18 @@ class Helper
 		return strpos($string, $subString) !== false;
 	}
 
+	/**
+	 * Verifica se uma string possui pelo menos um char em uppercase
+	 *
+	 * @param $string   string que será verificada
+	 *
+	 * @return int
+	 */
+	public static function hasUpperCaseChar($string)
+	{
+		return preg_match('/[A-Z]/', $string) > 0;
+	}
+
 
 
 	/* =======================================================================
