@@ -87,8 +87,7 @@ class Translator
 		$code = $this->structureTreater->treatAloneStructures($code);
 		$code = $this->structureTreater->separateCCodeStringsInLines(array_column($code, '0'));
 
-		var_dump($code);
-		die;
+		return $this->structureTreater->optimizeCCodeToHtml($code);
 	}
 
 	public function translateSimpleStructures($code)

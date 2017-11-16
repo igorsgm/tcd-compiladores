@@ -197,4 +197,24 @@ class StructureTreater
 
 		return $codeCLines;
 	}
+
+	/**
+	 * Gera a string HTML que será exibida no console do browser
+	 *
+	 * @param array $codeStructures
+	 */
+	public function optimizeCCodeToHtml($codeStructures)
+	{
+		$cString = '<span class="code-success">';
+		foreach ($codeStructures as $codeLines) {
+			//  Remove todos null/empty/false do array.
+			$codeLines = array_filter($codeLines);
+
+			foreach ($codeLines as $line) {
+				$cString .= $line . '<br>';
+			}
+		}
+
+		return $cString . '</span>';
+	}
 }
