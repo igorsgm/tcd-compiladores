@@ -2,6 +2,8 @@
 
 namespace App\Compiler;
 
+use App\Helper;
+
 class LPS1Compiler
 {
 	/**
@@ -26,13 +28,6 @@ class LPS1Compiler
 	 */
 	private $codeSanitized;
 
-	private $cHeader = [
-		'#include <stdio.h>',
-		'int main() {',
-		'int a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, w, x, y, z;',
-		'char str[512]; // auxiliar na leitura com G',
-	];
-
 	/**
 	 * LPS1Compiler constructor.
 	 *
@@ -47,6 +42,9 @@ class LPS1Compiler
 	{
 		$this->codeLined     = explode("\n", $this->codeInitialString);
 		$this->codeSanitized = $this->removeSpacesFromLines($this->codeLined);
+		$this->codeSanitized = $this->treatWhilesToCondenseInSingleLine($this->codeSanitized);
+
+		return Translator::execute($this->codeSanitized);
 	}
 
 	/**
@@ -68,6 +66,48 @@ class LPS1Compiler
 		}
 
 		return $lines;
+	}
+
+	public function treatWhilesToCondenseInSingleLine($lines)
+	{
+		foreach ($lines as $key => $line) {
+
+			// Se possuir um W { na linha $key, irá salvar o número da linha que possui o while e irá procurar aonde este W é fechado
+			if (Helper::contains($line, 'W') && Helper::contains($line, '{')) {
+
+				// Procurar a linha que o while fecha, envianddo como parametro os elementos que ainda faltam ser lidos
+				$lineClosingWhile    = $this->getWhileClosingLineNumber(array_slice($lines, $key + 1, null, true));
+
+				// Definindo as linhas que serão reunidas em uma só
+				$linesToMerge = array_slice($lines, $key, $lineClosingWhile - $key + 1, true);
+				$lines[$key]  = implode('', $linesToMerge);
+
+				// Remover o primeiro item do array de elemebtos que devem ser removidos
+				unset($linesToMerge[key($linesToMerge)]);
+
+				// Removendo do array
+				return array_values(Helper::remove($lines, array_keys($linesToMerge)));
+			}
+
+		}
+	}
+
+	/**
+	 * Procura onde é fechado o de é fechado o While
+	 *
+	 * @param array $lines Um subarray das linahs do código (a partir de onde foi encontrado o "W")
+	 *
+	 * @return bool|int|string  false se não encontrar o fechamento do While, o número da linha que foi encontrado o fechamento dele.
+	 */
+	public function getWhileClosingLineNumber($lines)
+	{
+		foreach ($lines as $key => $line) {
+			if (Helper::contains($line, '}')) {
+				return $key;
+			}
+		}
+
+		return false;
 	}
 
 }
