@@ -31,6 +31,13 @@ class OperationTreater
 		return $codeSanitized;
 	}
 
+	/**
+	 * Formatação dos operadores matemáticos (pertencentes ao $mathOperationsMap(
+	 *
+	 * @param string $line  A linha do código com a operacão matemática
+	 *
+	 * @return string
+	 */
 	public function formatMathOperation($line)
 	{
 		$elements = str_split($line);
@@ -38,10 +45,29 @@ class OperationTreater
 		return $elements[1] . '=' . $elements[2] . $elements[0] . $elements[3];
 	}
 
+	/**
+	 * Formatação dos operadores de comparação/atribuição (pertencentes ao $comparisonOperationsMap)
+	 *
+	 * @param string $line  A linha do código com a operação de comparaçõa/atribuição
+	 *
+	 * @return string
+	 */
 	public function formatComparisonOperation($line)
 	{
 		$elements = str_split($line);
 
 		return $elements[1] . $elements[0] . $elements[2];
+	}
+
+	/**
+	 * Tratamento das operaçòes na linha, para evitar que quebre o html da exibição
+	 *
+	 * @param string $line
+	 *
+	 * @return string
+	 */
+	public static function formatOperatorsHtmlInLine($line)
+	{
+		return str_replace(['<', '=', '!='], [' < ', ' = ', ' != '], $line);
 	}
 }

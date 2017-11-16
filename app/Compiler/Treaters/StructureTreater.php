@@ -217,11 +217,13 @@ class StructureTreater
 				if ($line == ';' && substr($codeLines[$key-1], -1) == ';') {
 					unset($codeLines[$key]);
 				} else {
-					$cString .= $line . '<br>';
+					$line = OperationTreater::formatOperatorsHtmlInLine($line);
+					$cString .=  $line . '</br>';
 				}
 			}
 		}
 
-		return '<span class="code-success">' . $cString . '</span>';
+		return html_entity_decode('<div class="code-success">' . $cString . '</div>');
 	}
+
 }

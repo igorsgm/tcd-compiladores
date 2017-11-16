@@ -211,7 +211,7 @@ body {
     font-size: 1.3em;
 }
 
-.panel-console span.code-success {
+.panel-console div.code-success {
     color: #00a65a;
 }
 
