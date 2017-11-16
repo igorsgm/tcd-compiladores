@@ -214,11 +214,16 @@ class StructureTreater
 			$codeLines = array_values(array_filter($codeLines));
 
 			foreach ($codeLines as $key => $line) {
-				if ($line == ';' && substr($codeLines[$key-1], -1) == ';') {
+				if ($line == ';' && substr($codeLines[$key - 1], -1) == ';') {
 					unset($codeLines[$key]);
 				} else {
+
 					$line = OperationTreater::formatOperatorsHtmlInLine($line);
-					$cString .=  $line . '</br>';
+
+					// Adicionar um enter a cada fechamento de estrutura
+//					$line = str_replace('}', '}<br>', $line);
+
+					$cString .= $line . '</br>';
 				}
 			}
 		}
