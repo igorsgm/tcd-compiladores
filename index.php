@@ -57,7 +57,7 @@
 
 			<div class="row">
 
-				<form data-form="code" action="src/request.php" method="post" role="form">
+				<form data-form="code" action="app/request.php" method="post" role="form">
 					<div class="col-sm-6">
 						<div data-panel="editor" class="panel panel-default panel-editor">
 							<div class="panel-heading">
